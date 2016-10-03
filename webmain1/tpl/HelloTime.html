@@ -1,0 +1,21 @@
+{{define "datetime"}}
+<!DOCTYPE HTML>
+<html dir="ltr">
+  <head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>HelloTime</title>
+  </head>
+  <body>
+    <br>
+    <h1 style="text-align: center;">{{.Title}}</h1>
+    <p style="text-align: center;">Diese Template-Seite wurde um<br>
+    {{.Time}}<br>
+    am<br>
+    {{.Date}}<br>
+    aufgerufen</p>
+    <p style="text-align: center;"><a href="static/HelloStatics.html">
+      Hier geht es zu einer statischen Seite</a></p>
+    <img align="left" title="Go Logo" alt="Das Go Maskottchen" src="static/gologo.png">
+  </body>
+</html>
+{{end}}

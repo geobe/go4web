@@ -1,0 +1,49 @@
+<html>
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Formular</title>
+</head>
+<body>
+<h1> Formulardaten</h1>
+<p>Dieses Formular wird mit Go ausgelesen</p>
+<form method="POST" action="/eval" name="GoIn">
+    <table style="width: 898px; height: 108px;" border="0">
+        <tbody>
+        <tr>
+            <td>Spitzname<br>
+            </td>
+            <td><input pattern="\w+" required="required" size="70"
+                       name="nickname" type="text"><br>
+            </td>
+        </tr>
+        <tr>
+            <td>Wahlspruch<br>
+            </td>
+            <td>
+                <select size="2" name="slogan">
+                    <option value="axe">Die Axt im Haus erspart den Zimmermann</option>
+                    <option value="bird">Derfrühe Vogel fängt der Wurm</option>
+                    <option value="ignoring">Was ich nicht weiss, macht mich nicht
+                        heiß
+                    </option>
+                </select>
+                <br>
+            </td>
+        </tr>
+        <tr>
+            <td>Wichtigkeit<br>
+            </td>
+            <td><input step="1" max="3" min="-3" value="0" name="importance" type="range"><br>
+            </td>
+        </tr>
+        <tr>
+            <td><br>
+            </td>
+            <td><input formmethod="post" value="Senden" name="okbutton" type="submit"><br>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+</html>
