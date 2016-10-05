@@ -10,7 +10,7 @@ import (
 
 var template1 *template.Template
 
-func idx(writer http.ResponseWriter, request *http.Request) {
+func showTime(writer http.ResponseWriter, request *http.Request) {
 	// aktuelle Zeit einschließlich Datum
 	now := time.Now()
 	// eine struct zur Datenübergabe an das Template
@@ -34,6 +34,9 @@ func err1(writer http.ResponseWriter, request *http.Request) {
 		request.URL.Path[1:])
 }
 
+// Parse die angegebenen Template-Files in ein Template
+// templatedir	Verzeichnis mit den Template-Files
+// fn...	ein oder mehrere Filenamen (ohne .html)
 func prep(templatedir string, fn ...string) (t *template.Template) {
 	var files []string
 	for _, file := range fn {
@@ -47,19 +50,19 @@ func main() {
 
 	// hole einen DefaultServeMux
 	mux := http.NewServeMux()
-	// finde Working directory = GOPATH
+	// Pfad zu den Template-Files relativ zu GOPATH
 	pwd, _ := os.Getwd()
-	// und hänge den ganzen Pfad zu den statischen Files dahinter
-	tpl := pwd + "/src/github.com/geobe/go4j/webmain1/tpl"
+	tpl := pwd + "/src/github.com/geobe/go4web/webmain1/tpl"
+	// Template "HelloTime.html" vorbereiten (parsen)
 	template1 = prep(tpl, "HelloTime")
-	// und hänge den ganzen Pfad zu den statischen Files dahinter
-	dir := http.Dir(pwd + "/src/github.com/geobe/go4j/webmain1/pub")
+	// Pfad zu den statischen Files relativ zu GOPATH
+	dir := http.Dir(pwd + "/src/github.com/geobe/go4web/webmain1/pub")
 	files := http.FileServer(dir)
 	// unter der URL /static/ werden files bereitgestellt,
 	// Präfix /static/ wird abgeschnitten
 	mux.Handle("/static/", http.StripPrefix("/static/", files))
 	// index
-	mux.HandleFunc("/", idx)
+	mux.HandleFunc("/", showTime)
 	// error
 	mux.HandleFunc("/err", err1)
 	// konfiguriere server

@@ -39,7 +39,7 @@ func main() {
 	// finde Working directory = GOPATH
 	pwd, _ := os.Getwd()
 	// und hänge den ganzen Pfad zu den statischen Files dahinter
-	dir := http.Dir(pwd + "/src/github.com/geobe/go4j/webmain1/pub")
+	dir := http.Dir(pwd + "/src/github.com/geobe/go4web/webmain1/pub")
 	files := http.FileServer(dir)
 	// unter der URL /static/ werden files bereitgestellt,
 	// Präfix /static/ wird abgeschnitten
