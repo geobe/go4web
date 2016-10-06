@@ -30,24 +30,15 @@ func parse(writer http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-
-	// hole einen DefaultServeMux
 	mux := http.NewServeMux()
-	// finde Working directory = GOPATH
 	pwd, _ := os.Getwd()
-	// und hänge den ganzen Pfad zu den statischen Files dahinter
-	dir := http.Dir(pwd + "/src/github.com/geobe/go4j/webmain1/pub")
+	dir := http.Dir(pwd + "/src/github.com/geobe/go4web/webmain1/pub")
 	files := http.FileServer(dir)
-	// unter der URL /static/ werden files bereitgestellt,
-	// Präfix /static/ wird abgeschnitten
 	mux.Handle("/static/", http.StripPrefix("/static/", files))
-	// index
 	mux.HandleFunc("/", parse)
-	// konfiguriere server
 	server := &http.Server{
-		Addr:    "0.0.0.0:8110",
+		Addr:    "127.0.0.1:8110",
 		Handler: mux,
 	}
-	// und starte ihn
 	server.ListenAndServe()
 }
