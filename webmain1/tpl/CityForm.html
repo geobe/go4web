@@ -1,0 +1,35 @@
+{{define "cityform"}}
+<html>
+<head>
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <title>Formular</title>
+</head>
+<body>
+<h1> Deutsche Großstädte</h1>
+<p>Stadt-Informationen</p>
+<form method="POST" action="/eval" name="GoIn">
+    <table style="width: 898px; height: 108px;" border="0">
+        <tbody>
+        <tr>
+            <td>Stadt
+            </td>
+            <td>
+                <select size="6" name="city">
+                    {{range $idx, $city := .}}
+                    <option value="{{$idx}}">{{$city}}</option>
+                    {{end}}
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;
+            </td>
+            <td><input formmethod="post" value="Senden" name="okbutton" type="submit"><br>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</form>
+</body>
+</html>
+{{end}}
