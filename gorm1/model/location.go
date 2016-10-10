@@ -1,16 +1,16 @@
 // Package loc "verpackt" loc.Location für gorm.
 // Dazu müssen alle Felder global sichtbar sein.
-package loc
+package model
 
 import "github.com/geobe/go4j/loc"
 
-type Loc struct {
+type Location struct {
 	Lat float64
 	Lon float64
 }
 
 // Implementiere Interface Locator
-func (loc Loc) LatLon() (lat, lon float64) {
+func (loc Location) LatLon() (lat, lon float64) {
 	lat = loc.Lat
 	lon = loc.Lon
 	return
@@ -18,6 +18,6 @@ func (loc Loc) LatLon() (lat, lon float64) {
 
 // Berechne Abstand zwischen zwei Loc's,
 // implementiert Interface Distancer.
-func (l Loc) Dist(lctr loc.Locator) float64 {
+func (l Location) Dist(lctr loc.Locator) float64 {
 	return loc.Dist(l, lctr)
 }

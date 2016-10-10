@@ -5,15 +5,9 @@ import (
 	//	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"fmt"
 	"github.com/geobe/go4j/poi"
-	"github.com/geobe/go4web/gorm1/model/city"
+	"github.com/geobe/go4web/gorm1/model"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
-
-type Product struct {
-	gorm.Model
-	Code  string
-	Price uint
-}
 
 func main() {
 	//	db, err := gorm.Open("sqlite3", "c:/usr/sqlitedata/gorm1.db")
@@ -24,18 +18,25 @@ func main() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&city.City{})
+	db.AutoMigrate(&model.City{}, &model.Destination{})
 
-	var ct city.City
+	var ct model.City
 
 	for _, aCity := range poi.GermanCities {
-		c := city.New(aCity)
-		fmt.Printf("City: %v\n", c)
-		db.Create(&c)
+		city := model.New(aCity)
+		dest := model.Destination{Dest: city}
+		fmt.Printf("City: %v\n", city)
+		// create dest sichert auch city in die DB
+		// -> kaskadieren
+		db.Create(&dest)
+		//		db.Create(&c)
 	}
 
 	db.First(&ct)
 
 	fmt.Printf("City: %v\n", ct)
+
+	db.Delete(model.City{})
+	fmt.Println(db.Error)
 
 }

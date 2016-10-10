@@ -16,7 +16,7 @@
             <td>
                 <select size="6" name="city">
                     {{range $idx, $city := .}}
-                    <option value="{{$idx}}">{{$city | name}}</option>
+                    <option value="{{$idx}}">{{name $city}}</option>
                     {{end}}
                 </select>
             </td>

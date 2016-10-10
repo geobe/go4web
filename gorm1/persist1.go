@@ -5,8 +5,6 @@ import (
 	//	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"fmt"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	//	"time"
-	"time"
 )
 
 type Product struct {
@@ -56,15 +54,20 @@ func main() {
 func conflictingChanges(db *gorm.DB) {
 	var p1, p2, p3 Product
 
-	db.First(&p1)
-	db.First(&p2)
+	// sicherstellen, dass beide Variablen mit gleichen Daten
+	// aus der Datenbank gelesen werden
+	tx := db.Begin()
+	tx.First(&p1)
+	tx.First(&p2)
+	tx.Commit()
+
+	//time.Sleep(1 * time.Millisecond)
 
 	p1.Price = 1111
 	p1.Code = "P4711"
 
 	p2.Price = 2222
 	p2.Code = "42-HAL"
-	time.Sleep(1 * time.Millisecond)
 
 	dbw := db.Save(&p1).RowsAffected
 	if dbw > 0 {
@@ -72,7 +75,6 @@ func conflictingChanges(db *gorm.DB) {
 	} else {
 		fmt.Printf("Not saved to DB, RowsAffected = %d\n", dbw)
 	}
-	//	time.Sleep(100* time.Millisecond)
 
 	// überschreibt p1
 	//db.Save(&p2)
