@@ -30,16 +30,19 @@ var cityTpl *template.Template
 // Parse die angegebenen Template-Files in ein Template
 // templatedir	Verzeichnis mit den Template-Files
 // fn...	ein oder mehrere Filenamen (ohne .html)
-func prep4(templatedir string, fn ...string) (t *template.Template) {
+func prepWithFuncs(funcmap template.FuncMap, templatedir string, fn ...string) (t *template.Template) {
 	var files []string
 	for _, file := range fn {
 		files = append(files, fmt.Sprintf("%s/%s.html", templatedir, file))
 	}
-	t = template.Must(template.ParseFiles(files...))
+	// Functions bei neuem Template registrieren
+	t = template.New("cf")
+	t.Funcs(funcmap)
+	template.Must(t.ParseFiles(files...))
 	return
 }
 
-func parseCity(w http.ResponseWriter, r *http.Request) {
+func parseCity5(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	index, err := strconv.Atoi(r.PostFormValue("city"))
 	if err != nil {
@@ -51,13 +54,11 @@ func parseCity(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, html, city.Name(), city.Inhabitants(), lat, lon)
 }
 
-func cityForm(w http.ResponseWriter, r *http.Request) {
-	citynames := make([]string, len(poi.GermanCities))
-	for i, c := range poi.GermanCities {
-		citynames[i] = c.Name()
-	}
+func cityForm5(w http.ResponseWriter, r *http.Request) {
 	if cityTpl != nil {
-		cityTpl.ExecuteTemplate(w, "cityform", citynames)
+		// Array von Objekten -> Template
+		cityTpl.ExecuteTemplate(w, "cityform",
+			poi.GermanCities)
 	}
 }
 
@@ -65,9 +66,12 @@ func main() {
 	mux := http.NewServeMux()
 	pwd, _ := os.Getwd()
 	tpl := pwd + "/src/github.com/geobe/go4web/webmain1/tpl"
-	cityTpl = prep4(tpl, "CityForm")
-	mux.HandleFunc("/eval", parseCity)
-	mux.HandleFunc("/", cityForm)
+	// definition der Funktions-Map
+	funcMap := template.FuncMap{
+		"name": (poi.City).Name}
+	cityTpl = prepWithFuncs(funcMap, tpl, "CityFormMethod")
+	mux.HandleFunc("/eval", parseCity5)
+	mux.HandleFunc("/", cityForm5)
 	server := &http.Server{
 		Addr:    "127.0.0.1:8080",
 		Handler: mux,
