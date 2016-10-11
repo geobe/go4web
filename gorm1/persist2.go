@@ -51,12 +51,19 @@ func main() {
 		"destinations[1].Dest.Name: %s\n",
 		len(destinations), destinations[0], destinations[0].Dest.Name)
 
-	// Finde Destination, die auf "München" zeigt
+	// Finde Destination, die auf "München" zeigt mit zwei Datenbankzugriffen
 	var muc model.City
 	var dmuc model.Destination
 	db.First(&muc, "name = ?", "München")
 	db.Preload("Dest").First(&dmuc, muc.ID)
 	fmt.Printf("dmuc.Dest.Name: %s\n", dmuc.Dest.Name)
+
+	// Finde Destination, die auf "Berlin" zeigt mit einem Datenbankzugriff
+	// in JOIN muss die "fremde" Tabelle, zu der der Join läuft, vorn stehen
+	var dmuc1 model.Destination
+	db.Joins("JOIN cities On cities.destination_id = destinations.id"+
+		" AND cities.name = ?", "Berlin").Preload("Dest").First(&dmuc1)
+	fmt.Printf("dmuc.Dest.Name: %s\n", dmuc1.Dest.Name)
 
 	db.Delete(model.City{})
 	db.Delete(model.Destination{})
