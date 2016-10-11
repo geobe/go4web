@@ -21,44 +21,51 @@ func main() {
 	db.AutoMigrate(&model.City{}, &model.Destination{})
 
 	var ct model.City
+	var ds model.Destination
 
 	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
 		dest := model.Destination{Dest: city}
-		//fmt.Printf("City: %v\n", city)
 		// create dest sichert auch city in die DB
 		// -> kaskadieren
 		db.Create(&dest)
-		//db.Create(&c)
+		//db.Create(&city)
 	}
 
 	db.First(&ct)
 	fmt.Printf("City: %v\n", ct)
 
-	var destinations []model.Destination
+	db.First(&ds)
+	fmt.Printf("Destination: %v\n\n", ds)
 
-	// Dest bleibt leer
+	var destinations []model.Destination
+	// alle Destinations aus der Datenbank
+	// in ein Array einlesen.
+	// Das Feld Dest bleibt leer.
 	db.Find(&destinations)
 	fmt.Printf("len(destinations): %d\n"+
 		"destinations[1]: %v\n"+
 		"destinations[1].Dest.Name: %s\n",
 		len(destinations), destinations[0], destinations[0].Dest.Name)
 
-	// Preload holt die Objekte der Relationship "Dest" in das Objekt
+	// Preload holt die Objekte der
+	// Assoziation "Dest" in das Objekt
 	db.Preload("Dest").Find(&destinations)
 	fmt.Printf("len(destinations): %d\n"+
 		"destinations[1]: %v\n"+
 		"destinations[1].Dest.Name: %s\n",
 		len(destinations), destinations[0], destinations[0].Dest.Name)
 
-	// Finde Destination, die auf "München" zeigt mit zwei Datenbankzugriffen
+	// Finde Destination, die auf "München"
+	// zeigt, mit zwei Datenbankzugriffen
 	var muc model.City
 	var dmuc model.Destination
 	db.First(&muc, "name = ?", "München")
+	// First mit Query-Parameter aufrufen
 	db.Preload("Dest").First(&dmuc, muc.ID)
 	fmt.Printf("dmuc.Dest.Name: %s\n", dmuc.Dest.Name)
 
-	// Finde Destination, die auf "Berlin" zeigt mit einem Datenbankzugriff
+	// Finde Destination, die auf "Berlin" zeigt, mit einem Datenbankzugriff
 	// in JOIN muss die "fremde" Tabelle, zu der der Join läuft, vorn stehen
 	var dmuc1 model.Destination
 	db.Joins("JOIN cities On cities.destination_id = destinations.id"+

@@ -56,11 +56,19 @@ func conflictingChanges(db *gorm.DB) {
 
 	// sicherstellen, dass beide Variablen mit gleichen Daten
 	// aus der Datenbank gelesen werden
+	// beginne Transaktion: Alle
+	// Datenbankoperationen nur mit tx!
 	tx := db.Begin()
+	// lies Objekt aus DB in p1
 	tx.First(&p1)
 	tx.First(&p2)
+	// ändere p1
+	p1.Price = 1111
+	p1.Code = "P4711"
+	// sichere p1 zurück in die DB
+	db.Save(&p1)
+	// beende Transaktion
 	tx.Commit()
-
 	//time.Sleep(1 * time.Millisecond)
 
 	p1.Price = 1111
@@ -69,22 +77,30 @@ func conflictingChanges(db *gorm.DB) {
 	p2.Price = 2222
 	p2.Code = "42-HAL"
 
-	dbw := db.Save(&p1).RowsAffected
-	if dbw > 0 {
-		fmt.Printf("Saved to DB, RowsAffected = %d\n", dbw)
+	ar := db.Save(&p1).RowsAffected
+	if ar > 0 {
+		fmt.Printf("Saved to DB, RowsAffected = %d\n", ar)
 	} else {
-		fmt.Printf("Not saved to DB, RowsAffected = %d\n", dbw)
+		fmt.Printf("Not saved to DB, RowsAffected = %d\n", ar)
 	}
 
 	// überschreibt p1
 	//db.Save(&p2)
 
 	// überschreibt nicht -> optimistic locking
-	dbw = db.Model(&p2).Where("updated_at = ?", p2.UpdatedAt).Save(&p2).RowsAffected
-	if dbw > 0 {
-		fmt.Printf("Saved to DB, RowsAffected = %d\n", dbw)
+	// feststellen, ob Daten in DB geändert wurden:
+
+	// Zeitstempel auf fremden update überprüfen
+	if db.Where("updated_at = ?", p2.UpdatedAt).
+		// nur speichern, wenn keine Änderung
+		Save(&p2).
+		// Anzahl der geänderten Zeilen in DB testen
+		RowsAffected == 0 {
+		// geänderte Daten integrieren ...
+		fmt.Printf("Not saved to DB\n")
 	} else {
-		fmt.Printf("Not saved to DB, RowsAffected = %d\n", dbw)
+		// alles OK, kein Update-Konflikt
+		fmt.Printf("Saved to DB\n")
 	}
 
 	db.First(&p3)
