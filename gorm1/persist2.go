@@ -25,18 +25,40 @@ func main() {
 	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
 		dest := model.Destination{Dest: city}
-		fmt.Printf("City: %v\n", city)
+		//fmt.Printf("City: %v\n", city)
 		// create dest sichert auch city in die DB
 		// -> kaskadieren
 		db.Create(&dest)
-		//		db.Create(&c)
+		//db.Create(&c)
 	}
 
 	db.First(&ct)
-
 	fmt.Printf("City: %v\n", ct)
 
+	var destinations []model.Destination
+
+	// Dest bleibt leer
+	db.Find(&destinations)
+	fmt.Printf("len(destinations): %d\n"+
+		"destinations[1]: %v\n"+
+		"destinations[1].Dest.Name: %s\n",
+		len(destinations), destinations[0], destinations[0].Dest.Name)
+
+	// Preload holt die Objekte der Relationship "Dest" in das Objekt
+	db.Preload("Dest").Find(&destinations)
+	fmt.Printf("len(destinations): %d\n"+
+		"destinations[1]: %v\n"+
+		"destinations[1].Dest.Name: %s\n",
+		len(destinations), destinations[0], destinations[0].Dest.Name)
+
+	// Finde Destination, die auf "München" zeigt
+	var muc model.City
+	var dmuc model.Destination
+	db.First(&muc, "name = ?", "München")
+	db.Preload("Dest").First(&dmuc, muc.ID)
+	fmt.Printf("dmuc.Dest.Name: %s\n", dmuc.Dest.Name)
+
 	db.Delete(model.City{})
-	fmt.Println(db.Error)
+	db.Delete(model.Destination{})
 
 }

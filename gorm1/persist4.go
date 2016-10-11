@@ -59,5 +59,4 @@ func main() {
 	db.Delete(model.City{})
 	db.Delete(model.Destination{})
 	db.Exec("delete from trips_cities")
-
 }
