@@ -1,4 +1,4 @@
-package model
+package model2
 
 import "time"
 
@@ -7,7 +7,7 @@ type Trip struct {
 	Comment      string
 	Start        time.Time
 	PersonID     uint
-	Destinations []Destination `gorm:"many2many:trips_destinations;"`
+	Destinations []Destination
 }
 
 var SomeTrips = []Trip{

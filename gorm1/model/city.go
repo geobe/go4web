@@ -1,20 +1,19 @@
-// Package city "verpackt" poi.City für gorm.
-// Dazu müssen alle Felder global sichtbar sein.
 package model
 
 import (
-	"fmt"
 	"github.com/geobe/go4j/poi"
 )
 
-// City macht alle Felder global sichtbar, sonst kann gorm
-// damit nicht arbeiten.
+// model.City "verpackt" poi.City für gorm.
+// model.City macht alle Felder global sichtbar,
+// sonst kann gorm damit nicht arbeiten.
 type City struct {
 	Model
 	Location
 	Name          string
 	Inhabitants   int
 	DestinationID uint
+	Trips         []Trip `gorm:"many2many:trip_city;"`
 }
 
 // Konstruktor Function
@@ -25,6 +24,7 @@ func New(c poi.City) (city City) {
 	return
 }
 
+/*
 func (c City) BeforeDelete() {
 	if c.ID == 0 {
 		fmt.Printf("Deleting all cities\n")
@@ -32,3 +32,4 @@ func (c City) BeforeDelete() {
 		fmt.Printf("Deleting City %s\n", c.Name)
 	}
 }
+*/

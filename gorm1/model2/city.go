@@ -1,11 +1,10 @@
-// Package city "verpackt" poi.City für gorm.
-// Dazu müssen alle Felder global sichtbar sein.
-package model
+package model2
 
 import (
 	"github.com/geobe/go4j/poi"
 )
 
+// model2.city "verpackt" poi.City für gorm.
 // City macht alle Felder global sichtbar, sonst kann gorm
 // damit nicht arbeiten.
 type City struct {
@@ -13,7 +12,7 @@ type City struct {
 	Location
 	Name        string
 	Inhabitants int
-	Destination Destination
+	Destination []Destination `gorm:"polymorphic:Dest;"`
 }
 
 // Konstruktor Function

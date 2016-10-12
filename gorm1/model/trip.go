@@ -7,7 +7,7 @@ type Trip struct {
 	Comment  string
 	Start    time.Time
 	PersonID uint
-	Cities   []City `gorm:"many2many:trips_cities;"`
+	Cities   []City `gorm:"many2many:trip_city;"`
 }
 
 var SomeTrips = []Trip{

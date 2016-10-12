@@ -1,9 +1,11 @@
-package model
+package model2
 
+// Reiseziel
 type Destination struct {
 	Model
-	// Name ist sinnlos, aber ohne einen Wert
-	// funktioniert Kaskadieren nicht
-	Name   string
-	CityID uint
+	// beschreibt das Reiseziel für diesen Trip
+	Reason   string
+	Trip     Trip
+	DestID   uint
+	DestType string
 }

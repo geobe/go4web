@@ -60,10 +60,19 @@ func main() {
 	// zeigt, mit zwei Datenbankzugriffen
 	var muc model.City
 	var dmuc model.Destination
-	db.First(&muc, "name = ?", "München")
 	// First mit Query-Parameter aufrufen
+	db.First(&muc, "name = ?", "München")
 	db.Preload("Dest").First(&dmuc, muc.DestinationID)
 	fmt.Printf("dmuc.Dest.Name: %s\n", dmuc.Dest.Name)
+
+	// Lade Destination, die auf "Köln"
+	// zeigt, mit Related in Variable
+	var cgn model.City
+	var dcgn model.Destination
+	// First mit Query-Parameter aufrufen
+	db.First(&cgn, "name = ?", "Köln")
+	db.Model(&cgn).Related(&dcgn, "Destination")
+	fmt.Printf("dcgn.Dest.Name: %s\n", dcgn.Dest.Name)
 
 	// Finde Destination, die auf "Berlin" zeigt, mit einem Datenbankzugriff
 	// in JOIN muss die "fremde" Tabelle, zu der der Join läuft, vorn stehen

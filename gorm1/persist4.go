@@ -8,6 +8,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
+// verwendet Datenmodell aus package model
 func main() {
 	db, err := gorm.Open("postgres", "user=oosy dbname=gorm4 password=oosy2016 sslmode=disable")
 	if err != nil {
@@ -47,9 +48,22 @@ func main() {
 		kirki.Name, len(kirki.Trips), kirki.Trips[0].Comment,
 		len(kirki.Trips[0].Cities))
 	for _, city := range kirki.Trips[0].Cities {
-		fmt.Printf("%s, ", city.Name)
+		fmt.Printf("\t%s \n", city.Name)
 	}
 	println()
+
+	var muc model.City
+	var toMuc []model.Trip
+	db.First(&muc, "name = 'München'")
+	// (M:N) City -> Trip
+	db.Model(&muc).Related(&toMuc, "Trips")
+	fmt.Println(toMuc)
+
+	var tripCities []model.City
+	// (M:N) Trip -> City
+	db.Model(&kirki.Trips[0]).
+		Related(&tripCities, "Cities")
+	fmt.Println(tripCities)
 
 	//fmt.Println(kirk)
 	//fmt.Println(kiki)

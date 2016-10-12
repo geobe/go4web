@@ -26,16 +26,24 @@ func main() {
 	db.Save(&lara)
 
 	// query
-	var kiki, lada model.Person
-
+	var kiki, riki, rara, lada, tripRider model.Person
 	db.First(&kiki, kirk.ID)
+	db.First(&riki, kirk.ID).Related(&riki.Trips)
 	db.Preload("Trips").First(&lada, lara.ID)
+	db.First(&rara, lara.ID)
+	// von Person -> Trip
+	db.Model(&rara).Related(&rara.Trips)
+	// von Trip -> Person
+	db.Model(&lara.Trips[0]).Related(&tripRider)
 
 	fmt.Println(kirk)
 	fmt.Println(kiki)
+	fmt.Println(riki)
 
 	fmt.Println(lara)
 	fmt.Println(lada)
+	fmt.Println(rara)
+	fmt.Println(tripRider)
 
 	db.Delete(model.Person{})
 	db.Delete(model.Trip{})

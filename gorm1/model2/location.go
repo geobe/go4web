@@ -1,9 +1,9 @@
-// Package loc "verpackt" loc.Location für gorm.
-// Dazu müssen alle Felder global sichtbar sein.
-package model
+package model2
 
 import "github.com/geobe/go4j/loc"
 
+// model2.Location "verpackt" loc.Location für gorm.
+// Dazu müssen alle Felder global sichtbar sein.
 type Location struct {
 	Lat float64
 	Lon float64

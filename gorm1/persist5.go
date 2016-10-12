@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+// für dieses Beispiel wird das geänderte model2 package verwendet
 func main() {
 	db, err := gorm.Open("postgres", "user=oosy dbname=gorm5 password=oosy2016 sslmode=disable")
 	if err != nil {
@@ -17,28 +18,40 @@ func main() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&model.City{}, &model.Destination{}, &model.Trip{}, model.Person{})
+	db.AutoMigrate(&model.City{}, &model.Attraction{}, &model.Destination{}, &model.Trip{}, &model.Person{})
 
-	for i, aCity := range poi.GermanCities {
+	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
-		dest := model.Destination{Name: aCity.Name() + strconv.Itoa(i)}
-		city.Destination = dest
-		// create city sichert auch dest in die DB
-		// Assoziation umgedreht -> kaskadieren
-		//db.Create(&dest)
 		db.Create(&city)
+	}
+
+	for _, attr := range model.GermanAttractions {
+		db.Create(&attr)
 	}
 
 	kirk := model.SomePersons[0]
 	kirk.Trips = append(kirk.Trips, model.SomeTrips[0], model.SomeTrips[2])
 
 	var dests []model.Destination
-	db.Joins("JOIN cities On cities.id = destinations.city_id" +
-		" AND cities.name in ('Köln', 'München', 'Düsseldorf')").Find(&dests)
+	var cities []model.City
+	db.Find(&cities, "name in ('Köln', 'München', 'Düsseldorf')")
+	for i, c := range cities {
+		tx := db.Begin()
+		dest := model.Destination{Reason: "Karneval " + strconv.Itoa(i)}
+		tx.Save(&dest)
+		c.Destination = append(c.Destination, dest)
+		tx.Save(&c)
+		dests = append(dests, dest)
+		tx.Commit()
+	}
+
+	fmt.Printf("dests %v\n", dests)
+	fmt.Printf("cities %v\n", cities)
+
 	kirk.Trips[0].Destinations = append(kirk.Trips[0].Destinations, dests...)
-	db.Joins("JOIN cities On cities.id = destinations.city_id"+
-		" AND cities.name in (?)", []string{"Zwickau", "Leipzig", "Dresden", "Bremen"}).Find(&dests)
-	kirk.Trips[1].Destinations = append(kirk.Trips[1].Destinations, dests...)
+	//db.Joins("JOIN cities On cities.id = destinations.city_id"+
+	//	" AND cities.name in (?)", []string{"Zwickau", "Leipzig", "Dresden", "Bremen"}).Find(&dests)
+	//kirk.Trips[1].Destinations = append(kirk.Trips[1].Destinations, dests...)
 
 	db.Save(&kirk)
 
@@ -53,7 +66,7 @@ func main() {
 		len(kirki.Trips[1].Destinations))
 	for _, aDest := range kirki.Trips[1].Destinations {
 		var city model.City
-		db.Find(&city, aDest.CityID)
+		db.Find(&city, aDest.DestID)
 		fmt.Printf(" %s,", city.Name)
 	}
 	println()

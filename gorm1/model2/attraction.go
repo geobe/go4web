@@ -1,4 +1,4 @@
-package model
+package model2
 
 import (
 	"github.com/jinzhu/gorm"
@@ -10,6 +10,7 @@ type Attraction struct {
 	Name        string
 	Description string
 	Stars       int
+	Destination []Destination `gorm:"polymorphic:Dest;"`
 }
 
 var GermanAttractions = []Attraction{
