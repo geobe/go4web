@@ -62,7 +62,7 @@ func main() {
 	var dmuc model.Destination
 	db.First(&muc, "name = ?", "München")
 	// First mit Query-Parameter aufrufen
-	db.Preload("Dest").First(&dmuc, muc.ID)
+	db.Preload("Dest").First(&dmuc, muc.DestinationID)
 	fmt.Printf("dmuc.Dest.Name: %s\n", dmuc.Dest.Name)
 
 	// Finde Destination, die auf "Berlin" zeigt, mit einem Datenbankzugriff

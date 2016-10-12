@@ -3,6 +3,7 @@
 package model
 
 import (
+	"fmt"
 	"github.com/geobe/go4j/poi"
 )
 
@@ -22,4 +23,12 @@ func New(c poi.City) (city City) {
 	city = City{Location: Location{lat, lon}, Name: c.Name(),
 		Inhabitants: c.Inhabitants()}
 	return
+}
+
+func (c City) BeforeDelete() {
+	if c.ID == 0 {
+		fmt.Printf("Deleting all cities\n")
+	} else {
+		fmt.Printf("Deleting City %s\n", c.Name)
+	}
 }

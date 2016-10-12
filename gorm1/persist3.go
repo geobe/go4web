@@ -15,7 +15,7 @@ func main() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&model.Trip{}, model.Person{})
+	db.AutoMigrate(&model.Trip{}, &model.Person{})
 
 	kirk := model.SomePersons[0]
 	lara := model.SomePersons[1]

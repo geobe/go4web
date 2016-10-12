@@ -16,7 +16,7 @@ func main() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&model.City{}, &model.Destination{}, &model.Trip{}, model.Person{})
+	db.AutoMigrate(&model.City{}, &model.Destination{}, &model.Trip{}, &model.Person{})
 
 	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
@@ -29,11 +29,11 @@ func main() {
 	kirk := model.SomePersons[0]
 	kirk.Trips = append(kirk.Trips, model.SomeTrips[0], model.SomeTrips[2])
 
-	var dests []model.City
-	db.Find(&dests, "name in ('München', 'Köln', 'Düsseldorf')")
-	kirk.Trips[0].Cities = append(kirk.Trips[0].Cities, dests...)
-	db.Find(&dests, "name in ('Zwickau', 'Leipzig', 'Dresden')")
-	kirk.Trips[1].Cities = append(kirk.Trips[1].Cities, dests...)
+	var cities []model.City
+	db.Find(&cities, "name in ('München', 'Köln', 'Düsseldorf')")
+	kirk.Trips[0].Cities = append(kirk.Trips[0].Cities, cities...)
+	db.Find(&cities, "name in ('Zwickau', 'Leipzig', 'Dresden')")
+	kirk.Trips[1].Cities = append(kirk.Trips[1].Cities, cities...)
 
 	db.Save(&kirk)
 
