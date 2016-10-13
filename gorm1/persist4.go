@@ -19,6 +19,12 @@ func main() {
 	// Migrate the schema
 	db.AutoMigrate(&model.City{}, &model.Destination{}, &model.Trip{}, &model.Person{})
 
+	db.Delete(model.Person{})
+	db.Delete(model.Trip{})
+	db.Delete(model.City{})
+	db.Delete(model.Destination{})
+	db.Exec("delete from trips_cities")
+
 	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
 		dest := model.Destination{Dest: city}
@@ -41,8 +47,10 @@ func main() {
 	// query
 	var kirki model.Person
 
-	db.Preload("Trips").First(&kirki, kirk.ID)
-	db.Preload("Cities").First(&kirki.Trips[0])
+	// Preload Person -> Trips -> Cities
+	db.Preload("Trips").
+		Preload("Trips.Cities").
+		First(&kirki, kirk.ID)
 
 	fmt.Printf("Person %s, %d Trips, 1. Trip %s hat %d Stationen: ",
 		kirki.Name, len(kirki.Trips), kirki.Trips[0].Comment,
@@ -68,9 +76,4 @@ func main() {
 	//fmt.Println(kirk)
 	//fmt.Println(kiki)
 
-	db.Delete(model.Person{})
-	db.Delete(model.Trip{})
-	db.Delete(model.City{})
-	db.Delete(model.Destination{})
-	db.Exec("delete from trips_cities")
 }

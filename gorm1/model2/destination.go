@@ -5,7 +5,7 @@ type Destination struct {
 	Model
 	// beschreibt das Reiseziel für diesen Trip
 	Reason   string
-	Trip     Trip
+	TripId   uint
 	DestID   uint
 	DestType string
 }

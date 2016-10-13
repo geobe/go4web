@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+// Demoprogramm für polymorphe Assoziationen:
 // für dieses Beispiel wird das geänderte model2 package verwendet
 func main() {
 	db, err := gorm.Open("postgres", "user=oosy dbname=gorm5 password=oosy2016 sslmode=disable")
@@ -19,6 +20,13 @@ func main() {
 
 	// Migrate the schema
 	db.AutoMigrate(&model.City{}, &model.Attraction{}, &model.Destination{}, &model.Trip{}, &model.Person{})
+
+	// Datenbank leeren
+	db.Delete(model.Person{})
+	db.Delete(model.Trip{})
+	db.Delete(model.City{})
+	db.Delete(model.Attraction{})
+	db.Delete(model.Destination{})
 
 	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
@@ -36,47 +44,64 @@ func main() {
 	var cities []model.City
 	db.Find(&cities, "name in ('Köln', 'München', 'Düsseldorf')")
 	for i, c := range cities {
-		tx := db.Begin()
-		dest := model.Destination{Reason: "Karneval " + strconv.Itoa(i)}
-		tx.Save(&dest)
+		tx := db
+		dest := model.Destination{Reason: "Karneval-" + strconv.Itoa(i)}
 		c.Destination = append(c.Destination, dest)
 		tx.Save(&c)
-		dests = append(dests, dest)
-		tx.Commit()
 	}
 
-	fmt.Printf("dests %v\n", dests)
-	fmt.Printf("cities %v\n", cities)
+	dest := model.Destination{Reason: "skurriles Schloß"}
+	var att model.Attraction
+	db.First(&att, "name like 'Neuschw%'")
+	att.Destination = append(att.Destination, dest)
+	db.Save(&att)
 
-	kirk.Trips[0].Destinations = append(kirk.Trips[0].Destinations, dests...)
-	//db.Joins("JOIN cities On cities.id = destinations.city_id"+
-	//	" AND cities.name in (?)", []string{"Zwickau", "Leipzig", "Dresden", "Bremen"}).Find(&dests)
-	//kirk.Trips[1].Destinations = append(kirk.Trips[1].Destinations, dests...)
+	db.Find(&dests)
+	for _, dest := range dests {
+		var city model.City
+		var attr model.Attraction
+		fmt.Printf("Reiseziel %s: ", dest.Reason)
+		// ausführliche Variante:
+		// Polymorphes Objekt vollständig lesen
+		db.First(&attr, dest.DestID)
+		db.First(&city, dest.DestID)
+		if city.ID != 0 {
+			fmt.Printf("City %s\n", city.Name)
+		} else {
+			fmt.Printf("Attraction %s\n", attr.Name)
+		}
+		// kompakte Variante: nur die Werte
+		// lesen, die gebraucht werden
+		var any struct{ Name string }
+		db.Table(dest.DestType).Where("ID = ?", dest.DestID).Scan(&any)
+		fmt.Printf("\t%s\n", any.Name)
+	}
+
+	kirk.Trips[0].Destinations = dests
 
 	db.Save(&kirk)
 
 	// query
 	var kirki model.Person
 
-	db.Preload("Trips").First(&kirki, kirk.ID)
-	db.Preload("Destinations").Find(&kirki.Trips)
+	db.Preload("Trips").
+		Preload("Trips.Destinations").
+		First(&kirki, kirk.ID)
 
-	fmt.Printf("Person %s, %d Trips, 2. Trip %s hat %d Stationen: ",
-		kirki.Name, len(kirki.Trips), kirki.Trips[1].Comment,
-		len(kirki.Trips[1].Destinations))
-	for _, aDest := range kirki.Trips[1].Destinations {
-		var city model.City
-		db.Find(&city, aDest.DestID)
-		fmt.Printf(" %s,", city.Name)
+	fmt.Printf("Person %s, %d Trips, 1. Trip %s hat %d Stationen:\n",
+		kirki.Name, len(kirki.Trips), kirki.Trips[0].Comment,
+		len(kirki.Trips[0].Destinations))
+	for _, kdest := range kirki.Trips[0].Destinations {
+		var any struct {
+			Description string
+			Name        string
+		}
+		db.Table(kdest.DestType).Where("ID = ?", kdest.DestID).Scan(&any)
+		fmt.Printf("\t%s: %s %s\n", kdest.Reason,
+			any.Description, any.Name)
 	}
-	println()
 
 	//fmt.Println(kirk)
 	//fmt.Println(kiki)
 
-	db.Delete(model.Person{})
-	db.Delete(model.Trip{})
-	db.Delete(model.City{})
-	db.Delete(model.Destination{})
-	db.Exec("delete from trips_destinations")
 }
