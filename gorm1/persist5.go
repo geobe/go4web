@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/geobe/go4j/poi"
+	//"github.com/geobe/go4j/poi"
 	model "github.com/geobe/go4web/gorm1/model2"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -24,18 +24,18 @@ func main() {
 	// Datenbank leeren
 	db.Delete(model.Person{})
 	db.Delete(model.Trip{})
-	db.Delete(model.City{})
-	db.Delete(model.Attraction{})
+	//db.Delete(model.City{})
+	//db.Delete(model.Attraction{})
 	db.Delete(model.Destination{})
 
-	for _, aCity := range poi.GermanCities {
-		city := model.New(aCity)
-		db.Create(&city)
-	}
-
-	for _, attr := range model.GermanAttractions {
-		db.Create(&attr)
-	}
+	//for _, aCity := range poi.GermanCities {
+	//	city := model.New(aCity)
+	//	db.Create(&city)
+	//}
+	//
+	//for _, attr := range model.GermanAttractions {
+	//	db.Create(&attr)
+	//}
 
 	kirk := model.SomePersons[0]
 	kirk.Trips = append(kirk.Trips, model.SomeTrips[0], model.SomeTrips[2])
@@ -44,10 +44,9 @@ func main() {
 	var cities []model.City
 	db.Find(&cities, "name in ('Köln', 'München', 'Düsseldorf')")
 	for i, c := range cities {
-		tx := db
 		dest := model.Destination{Reason: "Karneval-" + strconv.Itoa(i)}
 		c.Destination = append(c.Destination, dest)
-		tx.Save(&c)
+		db.Save(&c)
 	}
 
 	dest := model.Destination{Reason: "skurriles Schloß"}
@@ -61,19 +60,22 @@ func main() {
 		var city model.City
 		var attr model.Attraction
 		fmt.Printf("Reiseziel %s: ", dest.Reason)
-		// ausführliche Variante:
+		// ausführliche Variante 1:
 		// Polymorphes Objekt vollständig lesen
-		db.First(&attr, dest.DestID)
-		db.First(&city, dest.DestID)
-		if city.ID != 0 {
+		if "cities" == dest.DestType {
+			db.First(&city, dest.DestID)
 			fmt.Printf("City %s\n", city.Name)
 		} else {
+			db.First(&attr, dest.DestID)
 			fmt.Printf("Attraction %s\n", attr.Name)
 		}
-		// kompakte Variante: nur die Werte
+		// kompakte Variante 2: nur die Werte
 		// lesen, die gebraucht werden
-		var any struct{ Name string }
-		db.Table(dest.DestType).Where("ID = ?", dest.DestID).Scan(&any)
+		var any struct {
+			Name string
+		}
+		db.Table(dest.DestType).
+			Where("ID = ?", dest.DestID).Scan(&any)
 		fmt.Printf("\t%s\n", any.Name)
 	}
 

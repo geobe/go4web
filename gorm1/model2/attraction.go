@@ -1,11 +1,9 @@
 package model2
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import ()
 
 type Attraction struct {
-	gorm.Model
+	Model
 	Location
 	Name        string
 	Description string
