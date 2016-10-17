@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	//"github.com/geobe/go4j/poi"
+	"github.com/geobe/go4j/poi"
 	model "github.com/geobe/go4web/gorm1/model2"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -24,18 +24,18 @@ func main() {
 	// Datenbank leeren
 	db.Delete(model.Person{})
 	db.Delete(model.Trip{})
-	//db.Delete(model.City{})
-	//db.Delete(model.Attraction{})
+	db.Delete(model.City{})
+	db.Delete(model.Attraction{})
 	db.Delete(model.Destination{})
 
-	//for _, aCity := range poi.GermanCities {
-	//	city := model.New(aCity)
-	//	db.Create(&city)
-	//}
-	//
-	//for _, attr := range model.GermanAttractions {
-	//	db.Create(&attr)
-	//}
+	for _, aCity := range poi.GermanCities {
+		city := model.New(aCity)
+		db.Create(&city)
+	}
+
+	for _, attr := range model.GermanAttractions {
+		db.Create(&attr)
+	}
 
 	kirk := model.SomePersons[0]
 	kirk.Trips = append(kirk.Trips, model.SomeTrips[0], model.SomeTrips[2])
@@ -102,8 +102,5 @@ func main() {
 		fmt.Printf("\t%s: %s %s\n", kdest.Reason,
 			any.Description, any.Name)
 	}
-
-	//fmt.Println(kirk)
-	//fmt.Println(kiki)
 
 }
