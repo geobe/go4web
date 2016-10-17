@@ -23,7 +23,7 @@ func main() {
 	db.Delete(model.Trip{})
 	db.Delete(model.City{})
 	db.Delete(model.Destination{})
-	db.Exec("delete from trips_cities")
+	db.Exec("delete from trip_city")
 
 	for _, aCity := range poi.GermanCities {
 		city := model.New(aCity)
